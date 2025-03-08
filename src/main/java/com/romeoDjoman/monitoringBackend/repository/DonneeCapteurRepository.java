@@ -1,9 +1,15 @@
 package com.romeoDjoman.monitoringBackend.repository;
 
 import com.romeoDjoman.monitoringBackend.entity.DonneeCapteur;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import java.util.List;
 
-@Repository
 public interface DonneeCapteurRepository extends JpaRepository<DonneeCapteur, Long> {
+
+    @EntityGraph(attributePaths = {"equipement"})  // Charge explicitement la relation equipement
+    List<DonneeCapteur> findAll();
+
+    @EntityGraph(attributePaths = {"equipement"})
+    List<DonneeCapteur> findByEquipementId(Long equipementId);
 }

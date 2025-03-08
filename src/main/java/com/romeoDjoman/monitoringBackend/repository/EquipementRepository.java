@@ -7,4 +7,6 @@
     @Repository
     public interface EquipementRepository extends JpaRepository<Equipement, Long> {
 
+        
+
     }
