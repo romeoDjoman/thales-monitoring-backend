@@ -19,6 +19,6 @@ public class Equipement {
     private Date dateInstallation;
 
     @OneToMany(mappedBy = "equipement", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonManagedReference  // Indique que cette propriété doit être sérialisée
+    @JsonManagedReference
     private List<DonneeCapteur> donneesCapteur;
 }

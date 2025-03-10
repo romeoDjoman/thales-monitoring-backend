@@ -1,5 +1,6 @@
 package com.romeoDjoman.monitoringBackend.config;
 
+import com.romeoDjoman.monitoringBackend.dto.DonneeCapteurDTO;
 import com.romeoDjoman.monitoringBackend.entity.DonneeCapteur;
 import com.romeoDjoman.monitoringBackend.entity.Equipement;
 import com.romeoDjoman.monitoringBackend.repository.DonneeCapteurRepository;
@@ -8,6 +9,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 
 @Component
@@ -28,19 +30,40 @@ public class DataInitializer implements CommandLineRunner {
         String[] noms = {"Température", "Humidité", "Pression", "Lumière", "Gaz", "Mouvement", "Son", "CO2", "Vibration", "Proximité"};
 
         for (int i = 0; i < 10; i++) {
-            Equipement equipement = new Equipement();
-            equipement.setNom("Capteur de " + noms[i]);
-            equipement.setType(types[i % types.length]);
-            equipement.setDateInstallation(new Date());
-            equipementRepository.save(equipement);
+            String nomEquipement = "Capteur de " + noms[i];
+            String typeEquipement = types[i % types.length];
 
-            DonneeCapteur donnee = new DonneeCapteur();
-            donnee.setValeur(10 + random.nextDouble() * 90); // Valeur entre 10 et 100
-            donnee.setDateCollecte(new Date());
-            donnee.setEquipement(equipement);
-            donneeCapteurRepository.save(donnee);
+            // Vérifier si l'équipement existe déjà
+            Equipement equipement = equipementRepository.findByNom(nomEquipement);
+
+            if (equipement == null) {
+                // Créer un nouvel équipement s'il n'existe pas
+                equipement = new Equipement();
+                equipement.setNom(nomEquipement);
+                equipement.setType(typeEquipement);
+                equipement.setDateInstallation(new Date());
+                equipement = equipementRepository.save(equipement);
+                System.out.println("✅ Équipement créé : " + equipement.getNom());
+            } else {
+                System.out.println("⚠️ Équipement existant ignoré : " + equipement.getNom());
+            }
+
+            // Vérifier si des données existent déjà pour cet équipement
+            List<DonneeCapteurDTO> donneesExistantes = donneeCapteurRepository.findByEquipementIdWithEquipement(equipement.getId());
+
+            if (donneesExistantes.isEmpty()) {
+                // Ajouter des données de capteur si aucune n'existe
+                DonneeCapteur donnee = new DonneeCapteur();
+                donnee.setValeur(10 + random.nextDouble() * 90); // Valeur entre 10 et 100
+                donnee.setDateCollecte(new Date());
+                donnee.setEquipement(equipement);
+                donneeCapteurRepository.save(donnee);
+                System.out.println("✅ Donnée de capteur ajoutée pour l'équipement : " + equipement.getNom());
+            } else {
+                System.out.println("⚠️ Données existantes ignorées pour l'équipement : " + equipement.getNom());
+            }
         }
 
-        System.out.println("✅ 10 équipements et leurs données ont été initialisés !");
+        System.out.println("✅ Initialisation des données terminée !");
     }
 }

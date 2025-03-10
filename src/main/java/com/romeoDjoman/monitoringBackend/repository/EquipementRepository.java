@@ -7,6 +7,6 @@
     @Repository
     public interface EquipementRepository extends JpaRepository<Equipement, Long> {
 
-        
+        Equipement findByNom(String nom);
 
     }
